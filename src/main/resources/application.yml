@@ -5,3 +5,22 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
+
+  cloud:
+    gateway:
+      routes:
+
+        - id: response-caching-route
+          uri: http://localhost:8081
+          predicates:
+            - Path=/sensing/data
+            - Header=Gateway-Cache-Method, Gateway-Cache-Control
+          filters:
+            - SetPath=/data
+
+        - id: normal-route
+          uri: http://localhost:8081
+          predicates:
+            - Path=/sensing/data
+          filters:
+            - SetPath=/data
