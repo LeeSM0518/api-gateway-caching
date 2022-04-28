@@ -13,7 +13,6 @@ spring:
         - id: response-caching-route
           uri: http://localhost:8081
           predicates:
-            - Path=/sensing/data
             - Header=Gateway-Cache-Method, Gateway-Cache-Control
           filters:
             - SetPath=/data
