@@ -1,0 +1,21 @@
+### 응답 캐싱이 적용되지 않는 요청
+GET http://localhost:8080/sensing/data
+Accept: application/json
+
+> {%
+client.test("응답 캐싱이 적용되지 않는 요청 성공", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+});
+%}
+
+### 응답 캐싱이 적용되는 요청
+GET http://localhost:8080/sensing/data
+Accept: application/json
+Gateway-Cache-Method: query
+Gateway-Cache-Control: max-age=120
+
+> {%
+client.test("응답 캐싱이 적용되는 요청 성공", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+});
+%}
