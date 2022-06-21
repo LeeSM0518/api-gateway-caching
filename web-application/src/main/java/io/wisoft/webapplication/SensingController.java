@@ -12,7 +12,7 @@ public class SensingController {
 
   private final SensingRepository sensingRepository;
 
-  @GetMapping("/data")
+  @GetMapping("/sensing/data")
   public List<Sensing> getAllSensingData() {
     return sensingRepository.findAll();
   }
