@@ -9,20 +9,7 @@ spring:
   cloud:
     gateway:
       routes:
-
-        - id: response-caching-route
-          uri: http://localhost:8081
-          predicates:
-            - Header=Gateway-Cache-Method
-            - Header=Gateway-Cache-Control
-            - Path=/sensing/data
-          filters:
-            - PreGatewayCacheFilterFactory
-            - SetPath=/data
-
-        - id: normal-route
+        - id: application-route
           uri: http://localhost:8081
           predicates:
             - Path=/sensing/data
-          filters:
-            - SetPath=/data
