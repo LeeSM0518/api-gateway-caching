@@ -50,6 +50,7 @@ public class RequestGlobalFilter implements GlobalFilter {
       if (cache != null) {
         final byte[] cacheBytes = cache.getBytes(StandardCharsets.UTF_8);
         final DataBuffer cacheBuffer = exchange.getResponse().bufferFactory().wrap(cacheBytes);
+        exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/json");
         return exchange.getResponse().writeWith(Flux.just(cacheBuffer));
       }
     }
