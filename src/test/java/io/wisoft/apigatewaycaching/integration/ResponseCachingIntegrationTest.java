@@ -3,7 +3,6 @@ package io.wisoft.apigatewaycaching.integration;
 import io.wisoft.apigatewaycaching.cache.CacheRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,7 +12,6 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import java.time.Duration;
 import java.util.List;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -36,7 +34,7 @@ public class ResponseCachingIntegrationTest {
         .build();
 
     client = client.mutate()
-        .responseTimeout(Duration.ofSeconds(10))
+        .responseTimeout(Duration.ofSeconds(20))
         .exchangeStrategies(exchangeStrategies)
         .build();
 
@@ -44,7 +42,6 @@ public class ResponseCachingIntegrationTest {
   }
 
   @Test
-  @Timeout(value = 10, unit = SECONDS)
   void successTest() {
     final long startTimeBeforeCaching = System.currentTimeMillis();
     request();
