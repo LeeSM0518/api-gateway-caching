@@ -18,7 +18,7 @@ public class RequestGlobalFilter implements GlobalFilter {
 
   @Override
   public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
-    return queryCachingService.handle(exchange, chain);
+    return queryCachingService.requestHandle(exchange, chain);
   }
 
 }

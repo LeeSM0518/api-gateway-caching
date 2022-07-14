@@ -3,9 +3,17 @@ package io.wisoft.apigatewaycaching.filter.service;
 import io.wisoft.apigatewaycaching.cache.CacheRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.core.io.buffer.DefaultDataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.RequestPath;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -14,6 +22,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 
 import static io.wisoft.apigatewaycaching.filter.service.CacheHeaderValidator.isValid;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 @Slf4j
@@ -23,7 +32,7 @@ public class QueryCachingService {
 
   private final CacheRepository cacheRepository;
 
-  public Mono<Void> handle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
+  public Mono<Void> requestHandle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
     if (isValid(exchange.getRequest().getHeaders())) {
       final String requestPath = exchange.getRequest().getPath().value();
 
@@ -37,6 +46,46 @@ public class QueryCachingService {
       }
     }
     return chain.filter(exchange);
+  }
+
+  public Mono<Void> responseHandle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
+    if (isValid(exchange.getRequest().getHeaders())) {
+      ServerHttpResponseDecorator responseDecorator = getDecoratedResponse(exchange);
+      return chain.filter(exchange.mutate().response(responseDecorator).build());
+    }
+    return chain.filter(exchange);
+  }
+
+  private ServerHttpResponseDecorator getDecoratedResponse(final ServerWebExchange exchange) {
+    final ServerHttpRequest request = exchange.getRequest();
+    final ServerHttpResponse response = exchange.getResponse();
+    final DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
+
+    return new ServerHttpResponseDecorator(response) {
+      @Override
+      public Mono<Void> writeWith(final Publisher<? extends DataBuffer> body) {
+        if (body instanceof Flux) {
+          Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
+          return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
+            final DefaultDataBuffer joinedBuffers = new DefaultDataBufferFactory().join(dataBuffers);
+            final byte[] content = new byte[joinedBuffers.readableByteCount()];
+            joinedBuffers.read(content);
+
+            final String responseBody = new String(content, UTF_8);
+            final RequestPath requestPath = request.getPath();
+            log.info("requestId: {}, method: {}, url: {}", request.getId(), request.getMethodValue(), requestPath);
+
+            cacheRepository.save(requestPath.toString(), responseBody);
+
+            return bufferFactory.wrap(responseBody.getBytes());
+          })).onErrorResume(err -> {
+            log.error("error while decorating Reponse : {}", err.getMessage());
+            return Mono.empty();
+          });
+        }
+        return super.writeWith(body);
+      }
+    };
   }
 
 }
