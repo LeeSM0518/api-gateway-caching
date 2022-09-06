@@ -12,7 +12,7 @@ client.test("응답 캐싱이 적용되지 않는 요청 성공", function() {
 GET http://localhost:8080/sensing/data
 Accept: application/json
 Gateway-Cache-Method: query
-Gateway-Cache-Control: max-age=120
+Gateway-Cache-Control: max-age=10
 
 > {%
 client.test("응답 캐싱이 적용되는 요청 성공", function() {

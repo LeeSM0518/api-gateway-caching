@@ -1,6 +1,8 @@
-package io.wisoft.apigatewaycaching.filter.service;
+package io.wisoft.apigatewaycaching.service;
 
 import io.wisoft.apigatewaycaching.cache.CacheRepository;
+import io.wisoft.apigatewaycaching.service.vo.CachingEvent;
+import io.wisoft.apigatewaycaching.service.vo.GatewayCacheControl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -20,8 +22,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
-import static io.wisoft.apigatewaycaching.filter.service.CacheHeaderValidator.isValid;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 
@@ -31,9 +33,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class QueryCachingService {
 
   private final CacheRepository cacheRepository;
+  private final AutoCacheUpdater autoCacheUpdater;
 
   public Mono<Void> requestHandle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
-    if (isValid(exchange.getRequest().getHeaders())) {
+    if (CacheHeaderValidator.isValid(exchange.getRequest().getHeaders())) {
       final String requestPath = exchange.getRequest().getPath().value();
 
       final String cache = cacheRepository.find(requestPath);
@@ -49,7 +52,7 @@ public class QueryCachingService {
   }
 
   public Mono<Void> responseHandle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
-    if (isValid(exchange.getRequest().getHeaders())) {
+    if (CacheHeaderValidator.isValid(exchange.getRequest().getHeaders())) {
       ServerHttpResponseDecorator responseDecorator = getDecoratedResponse(exchange);
       return chain.filter(exchange.mutate().response(responseDecorator).build());
     }
@@ -74,8 +77,9 @@ public class QueryCachingService {
             final String responseBody = new String(content, UTF_8);
             final RequestPath requestPath = request.getPath();
             log.info("requestId: {}, method: {}, url: {}", request.getId(), request.getMethodValue(), requestPath);
-
-            cacheRepository.save(requestPath.toString(), responseBody);
+            Optional<GatewayCacheControl> control = GatewayCacheControl.create(request.getHeaders());
+            cacheRepository.saveWithExpireTime(requestPath.toString(), responseBody, control.get().getValue());
+            autoCacheUpdater.issue(new CachingEvent(requestPath.toString(), control.get(), responseBody));
 
             return bufferFactory.wrap(responseBody.getBytes());
           })).onErrorResume(err -> {

@@ -1,7 +1,7 @@
-package io.wisoft.apigatewaycaching.filter.service;
+package io.wisoft.apigatewaycaching.service;
 
-import io.wisoft.apigatewaycaching.filter.service.vo.GatewayCacheControl;
-import io.wisoft.apigatewaycaching.filter.service.vo.GatewayCacheMethod;
+import io.wisoft.apigatewaycaching.service.vo.GatewayCacheControl;
+import io.wisoft.apigatewaycaching.service.vo.GatewayCacheMethod;
 import org.springframework.http.HttpHeaders;
 
 import java.util.Optional;

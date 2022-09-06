@@ -1,4 +1,4 @@
-package io.wisoft.apigatewaycaching.filter.service.vo;
+package io.wisoft.apigatewaycaching.service.vo;
 
 import org.springframework.http.HttpHeaders;
 
