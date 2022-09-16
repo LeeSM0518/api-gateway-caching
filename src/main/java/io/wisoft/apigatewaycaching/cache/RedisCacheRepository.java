@@ -1,10 +1,11 @@
 package io.wisoft.apigatewaycaching.cache;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
+
+import java.util.concurrent.TimeUnit;
 
 @Repository
 public class RedisCacheRepository implements CacheRepository {
@@ -23,6 +24,11 @@ public class RedisCacheRepository implements CacheRepository {
   @Override
   public void save(final String key, final String value) {
     operations.set(key, value);
+  }
+
+  @Override
+  public void saveWithExpireTime(String key, String value, int seconds) {
+    operations.set(key, value, seconds, TimeUnit.SECONDS);
   }
 
   @Override

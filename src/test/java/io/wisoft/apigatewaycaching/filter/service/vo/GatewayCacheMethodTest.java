@@ -1,5 +1,6 @@
 package io.wisoft.apigatewaycaching.filter.service.vo;
 
+import io.wisoft.apigatewaycaching.service.vo.GatewayCacheMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;

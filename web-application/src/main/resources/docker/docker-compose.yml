@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  database:
+    image: postgres
+    container_name: web-application-db
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "15432:5432"
+    volumes:
+      - "./init/:/docker-entrypoint-initdb.d"

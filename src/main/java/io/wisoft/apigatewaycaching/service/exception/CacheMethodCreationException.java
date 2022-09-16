@@ -1,4 +1,4 @@
-package io.wisoft.apigatewaycaching.filter.service.exception;
+package io.wisoft.apigatewaycaching.service.exception;
 
 public class CacheMethodCreationException extends RuntimeException {
 

@@ -1,13 +1,13 @@
 package io.wisoft.apigatewaycaching.cache;
 
-import java.net.ResponseCache;
-
 public interface CacheRepository {
 
-  String find(String key);
+    String find(String key);
 
-  void save(String key, String value);
+    void save(String key, String value);
 
-  String delete(String key);
+    void saveWithExpireTime(String key, String value, int seconds);
+
+    String delete(String key);
 
 }

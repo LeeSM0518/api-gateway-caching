@@ -13,3 +13,6 @@ spring:
           uri: http://localhost:8081
           predicates:
             - Path=/sensing/data
+
+  application:
+    host: http://localhost:8081

@@ -1,6 +1,6 @@
 package io.wisoft.apigatewaycaching.filter;
 
-import io.wisoft.apigatewaycaching.filter.service.QueryCachingService;
+import io.wisoft.apigatewaycaching.service.QueryCachingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
