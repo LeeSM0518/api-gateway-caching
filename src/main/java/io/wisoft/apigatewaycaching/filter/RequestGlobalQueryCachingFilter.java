@@ -12,12 +12,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RequestGlobalFilter implements GlobalFilter {
+public class RequestGlobalQueryCachingFilter implements GlobalFilter {
 
   private final QueryCachingService queryCachingService;
 
   @Override
   public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
+    log.info("filtered query caching");
     return queryCachingService.requestHandle(exchange, chain);
   }
 

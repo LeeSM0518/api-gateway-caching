@@ -3,7 +3,7 @@ package io.wisoft.apigatewaycaching.service.vo;
 import lombok.Value;
 
 @Value
-public class CachingEvent {
+public class QueryCachingEvent {
 
   String requestPath;
   GatewayCacheControl control;

@@ -1,7 +1,7 @@
 package io.wisoft.apigatewaycaching.service;
 
 import io.wisoft.apigatewaycaching.cache.CacheRepository;
-import io.wisoft.apigatewaycaching.service.vo.CachingEvent;
+import io.wisoft.apigatewaycaching.service.vo.QueryCachingEvent;
 import io.wisoft.apigatewaycaching.service.vo.GatewayCacheControl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +36,12 @@ public class QueryCachingService {
   private final AutoCacheUpdater autoCacheUpdater;
 
   public Mono<Void> requestHandle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
-    if (CacheHeaderValidator.isValid(exchange.getRequest().getHeaders())) {
+    if (CacheHeaderValidator.isQueryCaching(exchange.getRequest().getHeaders())) {
       final String requestPath = exchange.getRequest().getPath().value();
 
-      final String cache = cacheRepository.find(requestPath);
+      log.info("query request caching start");
+      final String cache = cacheRepository.findQueryCache(requestPath);
+      log.info("query request caching end");
 
       if (cache != null) {
         final byte[] cacheBytes = cache.getBytes(StandardCharsets.UTF_8);
@@ -52,7 +54,7 @@ public class QueryCachingService {
   }
 
   public Mono<Void> responseHandle(final ServerWebExchange exchange, final GatewayFilterChain chain) {
-    if (CacheHeaderValidator.isValid(exchange.getRequest().getHeaders())) {
+    if (CacheHeaderValidator.isQueryCaching(exchange.getRequest().getHeaders())) {
       ServerHttpResponseDecorator responseDecorator = getDecoratedResponse(exchange);
       return chain.filter(exchange.mutate().response(responseDecorator).build());
     }
@@ -78,8 +80,8 @@ public class QueryCachingService {
             final RequestPath requestPath = request.getPath();
             log.info("requestId: {}, method: {}, url: {}", request.getId(), request.getMethodValue(), requestPath);
             Optional<GatewayCacheControl> control = GatewayCacheControl.create(request.getHeaders());
-            cacheRepository.saveWithExpireTime(requestPath.toString(), responseBody, control.get().getValue());
-            autoCacheUpdater.issue(new CachingEvent(requestPath.toString(), control.get(), responseBody));
+            cacheRepository.saveQueryCache(requestPath.toString(), responseBody);
+            autoCacheUpdater.issue(new QueryCachingEvent(requestPath.toString(), control.get(), responseBody));
 
             return bufferFactory.wrap(responseBody.getBytes());
           })).onErrorResume(err -> {

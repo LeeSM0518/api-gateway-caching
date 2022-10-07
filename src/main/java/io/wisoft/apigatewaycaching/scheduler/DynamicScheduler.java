@@ -15,10 +15,20 @@ import java.util.concurrent.ScheduledFuture;
 public class DynamicScheduler {
 
   private final TaskScheduler taskScheduler;
+  private static final String COMMAND_CACHE_KEY = "COMMAND:";
+  private static final String QUERY_CACHE_KEY = "QUERY:";
 
   private Map<String, ScheduledFuture<?>> schedulesMap = new HashMap<>();
 
-  public void scheduleATask(String scheduleName, int second, Runnable task) {
+  public void scheduleQueryCaching(String scheduleName, int second, Runnable task) {
+    startSchedule(QUERY_CACHE_KEY + scheduleName, second, task);
+  }
+
+  public void scheduleCommandCaching(String scheduleName, int second, Runnable task) {
+    startSchedule(COMMAND_CACHE_KEY + scheduleName, second, task);
+  }
+
+  private void startSchedule(String scheduleName, int second, Runnable task) {
     if (!schedulesMap.containsKey(scheduleName)) {
       log.info("Scheduling task with scheduleName: " + scheduleName + " and interval period: " + second);
       int millis = second * 1000;

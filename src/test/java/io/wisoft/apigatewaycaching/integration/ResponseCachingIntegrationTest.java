@@ -38,7 +38,7 @@ public class ResponseCachingIntegrationTest {
         .exchangeStrategies(exchangeStrategies)
         .build();
 
-    cacheRepository.delete(REQUEST_URL);
+    cacheRepository.deleteQueryCache(REQUEST_URL);
   }
 
   @Test
