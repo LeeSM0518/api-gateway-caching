@@ -1,13 +1,19 @@
 package io.wisoft.apigatewaycaching.cache;
 
+import java.util.List;
+
 public interface CacheRepository {
 
-    String find(String key);
+  String findQueryCache(String key);
 
-    void save(String key, String value);
+  List<String> findCommandCache(String key);
 
-    void saveWithExpireTime(String key, String value, int seconds);
+  void saveCommandCache(String key, String values);
 
-    String delete(String key);
+  void saveQueryCache(String key, String value);
+
+  String deleteQueryCache(String key);
+
+  Boolean clearCommandCache(String key);
 
 }

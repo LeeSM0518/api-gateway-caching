@@ -1,4 +1,4 @@
-### 응답 캐싱이 적용되지 않는 요청
+### 응답 캐싱이 적용되지 않은 요청
 GET http://localhost:8080/sensing/data
 Accept: application/json
 
@@ -8,14 +8,43 @@ client.test("응답 캐싱이 적용되지 않는 요청 성공", function() {
 });
 %}
 
-### 응답 캐싱이 적용되는 요청
+### 응답 캐싱이 적용된 요청
 GET http://localhost:8080/sensing/data
 Accept: application/json
 Gateway-Cache-Method: query
-Gateway-Cache-Control: max-age=10
+Gateway-Cache-Control: max-age=30
 
 > {%
 client.test("응답 캐싱이 적용되는 요청 성공", function() {
   client.assert(response.status === 200, "Response status is not 200");
 });
 %}
+
+### 요청 캐싱이 적용되지 않은 요청
+POST http://localhost:8080/sensing/data
+Content-Type: application/json
+
+{
+  "sensingList": [
+    {
+      "value": 1.0
+    },
+    {
+      "value": 2.0
+    },
+    {
+      "value": 3.0
+    }
+  ]
+}
+
+### 요청 캐싱이 적용된 요청
+POST http://localhost:8080/sensing/data
+Content-Type: application/json
+Gateway-Cache-Method: command
+Gateway-Cache-Control: max-age=20
+Gateway-Cache-Entity: sensingList
+
+{
+  "value": 1.0
+}
