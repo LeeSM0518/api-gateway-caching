@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RequestGlobalCommandCachingFilter implements GlobalFilter {
+public class RequestGlobalCommandCachingFilter implements GlobalFilter, Ordered {
 
   private final CommandCachingService commandCachingService;
 
@@ -22,4 +23,8 @@ public class RequestGlobalCommandCachingFilter implements GlobalFilter {
     return commandCachingService.requestHandle(exchange, chain);
   }
 
+  @Override
+  public int getOrder() {
+    return -2;
+  }
 }
