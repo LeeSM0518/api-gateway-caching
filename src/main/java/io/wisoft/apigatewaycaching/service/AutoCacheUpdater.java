@@ -20,7 +20,6 @@ public class AutoCacheUpdater {
     int intervalPeriod = event.getControl().getValue();
     String requestPath = event.getRequestPath();
     dynamicScheduler.scheduleQueryCaching(requestPath, intervalPeriod, () -> {
-      log.info("query caching : request -> {}", requestPath);
       String response = requester.get(requestPath);
       repository.saveQueryCache(requestPath, response);
     });

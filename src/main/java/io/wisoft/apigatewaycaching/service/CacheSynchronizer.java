@@ -31,7 +31,6 @@ public class CacheSynchronizer {
         List parsedCaches = mapper.readValue(caches, List.class);
         Map<String, List> requestBody = Map.of(event.getEntity().getValue(), parsedCaches);
         String json = mapper.writeValueAsString(requestBody);
-        log.info("command caching : cache -> {}", json);
         try {
           requester.post(requestPath, json);
         } catch (Exception e) {

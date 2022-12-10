@@ -39,9 +39,7 @@ public class QueryCachingService {
     if (CacheHeaderValidator.isQueryCaching(exchange.getRequest().getHeaders())) {
       final String requestPath = exchange.getRequest().getPath().value();
 
-      log.info("query request caching start");
       final String cache = cacheRepository.findQueryCache(requestPath);
-      log.info("query request caching end");
 
       if (cache != null) {
         final byte[] cacheBytes = cache.getBytes(StandardCharsets.UTF_8);
@@ -78,7 +76,6 @@ public class QueryCachingService {
 
             final String responseBody = new String(content, UTF_8);
             final RequestPath requestPath = request.getPath();
-            log.info("requestId: {}, method: {}, url: {}", request.getId(), request.getMethodValue(), requestPath);
             Optional<GatewayCacheControl> control = GatewayCacheControl.create(request.getHeaders());
             cacheRepository.saveQueryCache(requestPath.toString(), responseBody);
             autoCacheUpdater.issue(new QueryCachingEvent(requestPath.toString(), control.get(), responseBody));

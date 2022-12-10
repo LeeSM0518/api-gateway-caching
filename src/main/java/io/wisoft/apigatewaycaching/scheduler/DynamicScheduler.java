@@ -30,7 +30,6 @@ public class DynamicScheduler {
 
   private void startSchedule(String scheduleName, int second, Runnable task) {
     if (!schedulesMap.containsKey(scheduleName)) {
-      log.info("Scheduling task with scheduleName: " + scheduleName + " and interval period: " + second);
       int millis = second * 1000;
       ScheduledFuture<?> scheduledFuture = taskScheduler.scheduleAtFixedRate(task, millis);
       schedulesMap.put(scheduleName, scheduledFuture);
